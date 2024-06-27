@@ -32,10 +32,10 @@ class ApexDataWidget(QDialog):
         super(ApexDataWidget, self).__init__(parent)
 
         screen = QDesktopWidget().screenGeometry()
-        screen_width = screen.width()
-        screen_height = screen.height()
+        self.screen_width = screen.width()
+        self.screen_height = screen.height()
 
-        self.setGeometry(100, 100, int(screen_width * 0.8), int(screen_height * 0.7))
+        self.setGeometry(100, 100, int(self.screen_width * 0.8), int(self.screen_height * 0.7))
 
         self.setWindowTitle("Apex Account(s) Data")
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
@@ -70,7 +70,7 @@ class ApexDataWidget(QDialog):
     def setupTopFrame(self):
         self.top_frame = QFrame()
         self.top_frame.setStyleSheet("border: 2px solid black;")
-        self.top_frame.setMaximumHeight(50)
+        self.top_frame.setMaximumHeight(int(self.screen_height * 0.05))
         self.top_frame_layout_horizontal = QHBoxLayout(self.top_frame)
         self.top_frame_layout_horizontal.setContentsMargins(0, 0, 0, 0)
         self.top_frame_layout_horizontal.setSpacing(0)
@@ -125,7 +125,9 @@ class ApexDataWidget(QDialog):
         self.bottom_frame = QFrame()
         self.bottom_frame_layout_vertical = QVBoxLayout(self.bottom_frame)
         self.stats_frame = self.createStatsFrame()
+        self.stats_frame.setMaximumHeight(int(self.screen_height * 0.2))
         self.graphs_frame = self.createGraphsFrame()
+        self.graphs_frame.setMaximumHeight(int(self.screen_height * 0.55))
         self.bottom_frame_layout_vertical.addWidget(self.stats_frame)
         self.bottom_frame_layout_vertical.addWidget(self.graphs_frame)
 
@@ -397,11 +399,6 @@ class ApexDataWidget(QDialog):
                     self.third_graph_frame.layout().removeWidget(widget_to_remove)
                     widget_to_remove.setParent(None)
             self.calendar = CustomCalendar(parent=None)
-            screen = QDesktopWidget().screenGeometry()
-            screen_width = screen.width()
-            screen_height = screen.height()
-
-            self.calendar.setGeometry(100, 100, int(screen_width * 0.3), int(screen_height * 0.3))
             self.calendar.account_data = data
             self.update_calendar(data)
             self.third_graph_frame.layout().addWidget(self.calendar)

@@ -9,7 +9,7 @@ import MainWindow
 # URLs
 GITHUB_REPO_URL = 'https://raw.githubusercontent.com/imyago9/JournalTrade4.1/master/version.txt'
 GITHUB_DIST_ZIP_URL = 'https://github.com/imyago9/JournalTrade4.1/archive/refs/heads/master.zip'
-LOCAL_VERSION_FILE = os.path.join(user_data_dir, 'data' 'version.txt')
+LOCAL_VERSION_FILE = os.path.join(user_data_dir, 'version.txt')
 
 def get_github_version(url):
     try:
