@@ -1,6 +1,6 @@
 import sys
 import pandas as pd
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTreeView, QAbstractItemView, QFileDialog, QMessageBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTreeView, QAbstractItemView, QFileDialog, QMessageBox, QDesktopWidget
 from PyQt5.QtCore import Qt, QPoint
 from PyQt5 import QtGui
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
@@ -18,9 +18,13 @@ class MainWindow(QMainWindow):
         self.check_data()
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setWindowTitle("JournalTrade")
-        self.setGeometry(100, 100, 800, 200)
 
-        # Variables to store the mouse position
+        screen = QDesktopWidget().screenGeometry()
+        screen_width = screen.width()
+        screen_height = screen.height()
+
+        self.setGeometry(100, 100, int(screen_width * 0.45), int(screen_height * 0.2))
+
         self._is_dragging = False
         self._drag_start_position = QPoint()
 

@@ -98,8 +98,11 @@ class SettingsWidget(QWidget):
         self.layout.addWidget(self.middle_frame)
 
         # Window settings
-        self.setWindowTitle('Custom Widget')
-        self.setGeometry(300, 300, 300, 400)
+        screen = QDesktopWidget().screenGeometry()
+        screen_width = screen.width()
+        screen_height = screen.height()
+
+        self.setGeometry(100, 100, int(screen_width * 0.1), int(screen_height * 0.2))
         self.show()
 
         # Connect button actions

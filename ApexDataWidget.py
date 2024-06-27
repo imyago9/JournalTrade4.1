@@ -30,7 +30,13 @@ def resource_path(relative_path):
 class ApexDataWidget(QDialog):
     def __init__(self, parent=None):
         super(ApexDataWidget, self).__init__(parent)
-        self.setGeometry(100, 100, 1600, 600)
+
+        screen = QDesktopWidget().screenGeometry()
+        screen_width = screen.width()
+        screen_height = screen.height()
+
+        self.setGeometry(100, 100, int(screen_width * 0.8), int(screen_height * 0.7))
+
         self.setWindowTitle("Apex Account(s) Data")
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         self.setupUi()
@@ -391,7 +397,11 @@ class ApexDataWidget(QDialog):
                     self.third_graph_frame.layout().removeWidget(widget_to_remove)
                     widget_to_remove.setParent(None)
             self.calendar = CustomCalendar(parent=None)
-            self.calendar.setGeometry(0, 0, 600, 400)
+            screen = QDesktopWidget().screenGeometry()
+            screen_width = screen.width()
+            screen_height = screen.height()
+
+            self.calendar.setGeometry(100, 100, int(screen_width * 0.3), int(screen_height * 0.3))
             self.calendar.account_data = data
             self.update_calendar(data)
             self.third_graph_frame.layout().addWidget(self.calendar)

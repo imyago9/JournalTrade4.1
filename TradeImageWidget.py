@@ -19,7 +19,11 @@ class ScreenshotPrompt(QDialog):
 
     def init_ui(self):
         self.setWindowFlags(Qt.FramelessWindowHint)
-        self.setGeometry(100, 100, 300, 100)
+        screen = QDesktopWidget().screenGeometry()
+        screen_width = screen.width()
+        screen_height = screen.height()
+
+        self.setGeometry(100, 100, int(screen_width * 0.2), int(screen_height * 0.1))
         self.center()
 
         layout = QVBoxLayout()
@@ -78,7 +82,11 @@ class ScreenshotUpload(QDialog):
 
     def init_ui(self):
         self.setWindowFlags(Qt.FramelessWindowHint)
-        self.setGeometry(100, 100, 400, 200)
+        screen = QDesktopWidget().screenGeometry()
+        screen_width = screen.width()
+        screen_height = screen.height()
+
+        self.setGeometry(100, 100, int(screen_width * 0.2), int(screen_height * 0.1))
         self.center()
 
         layout = QVBoxLayout()
@@ -191,7 +199,11 @@ class ScreenshotDisplay(QDialog):
 
     def init_ui(self):
         self.setWindowFlags(Qt.FramelessWindowHint)
-        self.setGeometry(100, 100, 800, 600)
+        screen = QDesktopWidget().screenGeometry()
+        screen_width = screen.width()
+        screen_height = screen.height()
+
+        self.setGeometry(100, 100, int(screen_width * 0.8), int(screen_height * 0.6))
         self.center()
 
         layout = QVBoxLayout()

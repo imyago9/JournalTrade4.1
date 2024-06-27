@@ -1,4 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QDesktopWidget
 from PyQt5.QtCore import pyqtSignal
 import pandas as pd
 from functions import update_with_new_data, use_data_path, visibility_file_path
@@ -9,7 +10,11 @@ class ManageDataWidget(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Manage Account Data")
-        self.setGeometry(520, 320, 300, 400)
+        screen = QDesktopWidget().screenGeometry()
+        screen_width = screen.width()
+        screen_height = screen.height()
+
+        self.setGeometry(100, 100, int(screen_width * 0.15), int(screen_height * 0.4))
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
 
         self.initUI()
