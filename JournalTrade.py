@@ -56,6 +56,7 @@ def merge_directories(src, dest):
             src_file = os.path.join(root, file)
             dest_file = os.path.join(dest_path, file)
             if os.path.exists(dest_file):
+                os.chmod(dest_file, 0o777)
                 os.remove(dest_file)
             shutil.move(src_file, dest_file)
 
