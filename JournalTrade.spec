@@ -3,7 +3,7 @@
 block_cipher = None
 
 a = Analysis(
-    ['MainWindow.py'],
+    ['JournalTrade.py'],
     pathex=['C:/Users/yagof/IdeaProjects/JournalTrade4.1'],
     binaries=[],
     datas=[('resources', 'resources')],
@@ -24,7 +24,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='MainWindow',
+    name='JournalTrade',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -42,5 +42,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='MainWindow',
+    name='JournalTrade',
 )
