@@ -5,7 +5,7 @@ a = Analysis(
     ['JournalTrade.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('resources', 'resources')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

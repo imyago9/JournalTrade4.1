@@ -35,17 +35,17 @@ class MainWindow(QMainWindow):
 
         self.manage_data_button = QPushButton('Manage Data', clicked=self.open_manage_data_widget)
         manage_data_icon = QtGui.QIcon()
-        manage_data_icon.addPixmap(QtGui.QPixmap("resources/managedata.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        manage_data_icon.addPixmap(QtGui.QPixmap(resource_path("resources/managedata.svg")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.manage_data_button.setIcon(manage_data_icon)
 
         self.view_data_button = QPushButton('View Data')
         view_data_icon = QtGui.QIcon()
-        view_data_icon.addPixmap(QtGui.QPixmap("resources/viewdata.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        view_data_icon.addPixmap(QtGui.QPixmap(resource_path("resources/viewdata.svg")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.view_data_button.setIcon(view_data_icon)
 
         self.apex_data_button = QPushButton('Apex Account(s) Data', clicked=self.open_apex_data_widget)
         apex_data_icon = QtGui.QIcon()
-        apex_data_icon.addPixmap(QtGui.QPixmap("resources/apexaccounts.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        apex_data_icon.addPixmap(QtGui.QPixmap(resource_path("resources/apexaccounts.svg")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.apex_data_button.setIcon(apex_data_icon)
 
         self.top_layout.addWidget(self.manage_data_button)
@@ -55,12 +55,12 @@ class MainWindow(QMainWindow):
 
         self.minimize_button = QPushButton()
         minimize_icon = QtGui.QIcon()
-        minimize_icon.addPixmap(QtGui.QPixmap("resources/minimize.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        minimize_icon.addPixmap(QtGui.QPixmap(resource_path("resources/minimize.svg")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.minimize_button.setIcon(minimize_icon)
 
         self.close_button = QPushButton()
         close_icon = QtGui.QIcon()
-        close_icon.addPixmap(QtGui.QPixmap("resources/close.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        close_icon.addPixmap(QtGui.QPixmap(resource_path("resources/close.svg")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.close_button.setIcon(close_icon)
 
         self.top_layout.addWidget(self.minimize_button)
@@ -145,9 +145,19 @@ class MainWindow(QMainWindow):
             self._is_dragging = False
             event.accept()
 
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 
 def load_stylesheet(app):
-    stylesheet_path = 'resources/style.qss'
+    stylesheet_path = resource_path('resources/style.qss')
     with open(stylesheet_path, "r") as file:
         app.setStyleSheet(file.read())
 
