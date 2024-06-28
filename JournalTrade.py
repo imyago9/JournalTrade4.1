@@ -5,6 +5,7 @@ import shutil
 import os
 import subprocess
 import MainWindow
+from installer_updater import download_and_extract_dist
 
 # URLs
 GITHUB_REPO_URL = 'https://raw.githubusercontent.com/imyago9/JournalTrade4.1/master/version.txt'
@@ -27,37 +28,6 @@ def get_local_version(file_path):
     except FileNotFoundError:
         print(f"Local version file not found at {file_path}")
         return None
-
-def download_and_extract_dist(zip_url, extract_to, subfolder):
-    try:
-        response = requests.get(zip_url, stream=True)
-        response.raise_for_status()
-        zip_path = os.path.join(extract_to, 'dist.zip')
-        with open(zip_path, 'wb') as file:
-            for chunk in response.iter_content(chunk_size=128):
-                file.write(chunk)
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall(extract_to)
-        os.remove(zip_path)
-        extracted_path = os.path.join(extract_to, 'JournalTrade4.1-master', subfolder)
-        merge_directories(extracted_path, extract_to)
-        shutil.rmtree(os.path.join(extract_to, 'JournalTrade4.1-master'))
-    except requests.RequestException as e:
-        print(f"Error downloading dist from GitHub: {e}")
-
-def merge_directories(src, dest):
-    for root, dirs, files in os.walk(src):
-        relative_path = os.path.relpath(root, src)
-        dest_path = os.path.join(dest, relative_path)
-        if not os.path.exists(dest_path):
-            os.makedirs(dest_path)
-        for file in files:
-            src_file = os.path.join(root, file)
-            dest_file = os.path.join(dest_path, file)
-            if os.path.exists(dest_file):
-                os.chmod(dest_file, 0o777)
-                os.remove(dest_file)
-            shutil.move(src_file, dest_file)
 
 def is_dir_empty(directory):
     return not any(os.scandir(directory))
