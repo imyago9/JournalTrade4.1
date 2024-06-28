@@ -7,11 +7,11 @@ import shutil
 import subprocess
 
 # URLs
-GITHUB_REPO_URL = 'https://raw.githubusercontent.com/imyago9/JournalTrade4.1/master/version.txt'
+GITHUB_VERSION_URL = 'https://raw.githubusercontent.com/imyago9/JournalTrade4.1/master/version.txt'
 JOURNALTRADE_EXE_URL = 'https://raw.githubusercontent.com/imyago9/JournalTrade4.1/master/dist/JournalTrade.exe'
 INSTALLER_EXE_URL = 'https://raw.githubusercontent.com/imyago9/JournalTrade4.1/master/dist/Installer.exe'
 user_data_dir = os.path.join(os.getenv('LOCALAPPDATA'), 'Y', 'JournalTrade')
-LOCAL_VERSION_FILE = os.path.join(user_data_dir, 'version.txt')
+LOCAL_VERSION_PATH = os.path.join(user_data_dir, 'version.txt')
 LOCAL_EXE_PATH = os.path.join(user_data_dir, 'JournalTrade.exe')
 NEW_EXE_PATH = os.path.join(user_data_dir, 'JournalTrade_new.exe')
 UPDATER_EXE_PATH = os.path.join(user_data_dir, 'Installer.exe')
@@ -52,13 +52,17 @@ def update_application():
     if os.path.exists(UPDATER_EXE_PATH):
         os.remove(UPDATER_EXE_PATH)
     download_file(INSTALLER_EXE_URL, UPDATER_EXE_PATH)
+    
+    if os.path.exists(LOCAL_VERSION_PATH):
+        os.remove(LOCAL_VERSION_PATH)
+    download_file(GITHUB_VERSION_URL, LOCAL_VERSION_PATH)
 
     # Run the updater executable and exit the current application
     subprocess.Popen([UPDATER_EXE_PATH])
     sys.exit()
 
 def check_for_updates():
-    github_version = get_github_version(GITHUB_REPO_URL)
+    github_version = get_github_version(GITHUB_VERSION_URL)
     local_version = get_local_version(os.path.join(os.getenv('LOCALAPPDATA'), 'Y', 'JournalTrade', 'version.txt'))
 
     if github_version and local_version and github_version != local_version:
