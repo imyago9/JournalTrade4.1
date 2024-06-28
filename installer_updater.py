@@ -8,8 +8,8 @@ from PyQt5.QtWidgets import QApplication, QMessageBox
 
 # URLs
 GITHUB_VERSION_URL = 'https://raw.githubusercontent.com/imyago9/JournalTrade4.1/master/version.txt'
-GITHUB_EXE_URL = 'https://raw.githubusercontent.com/imyago9/JournalTrade4.1/master/JournalTrade.exe'
-GITHUB_UPDATER_URL = 'https://raw.githubusercontent.com/imyago9/JournalTrade4.1/master/InstallerUpdater.exe'
+GITHUB_EXE_URL = 'https://github.com/imyago9/JournalTrade4.1/blob/master/dist/JournalTrade.exe'
+GITHUB_UPDATER_URL = 'https://github.com/imyago9/JournalTrade4.1/blob/master/dist/installer_updater.exe'
 user_data_dir = os.path.join(os.getenv('LOCALAPPDATA'), 'Y', 'JournalTrade')
 LOCAL_VERSION_FILE = os.path.join(user_data_dir, 'version.txt')
 MAIN_EXECUTABLE_PATH = os.path.join(user_data_dir, 'JournalTrade.exe')
@@ -75,7 +75,6 @@ def main():
                 os.makedirs(TEMP_DIR)
             download_file(GITHUB_EXE_URL, os.path.join(TEMP_DIR, 'JournalTrade.exe'))
             download_file(GITHUB_UPDATER_URL, os.path.join(TEMP_DIR, 'InstallerUpdater.exe'))
-            download_file(GITHUB_VERSION_URL, os.path.join(TEMP_DIR, 'version.txt'))
             shutil.copytree(TEMP_DIR, user_data_dir, dirs_exist_ok=True)
             with open(LOCAL_VERSION_FILE, 'w') as file:
                 file.write(github_version)
@@ -88,7 +87,6 @@ def main():
                 os.makedirs(TEMP_DIR)
             download_file(GITHUB_EXE_URL, os.path.join(TEMP_DIR, 'JournalTrade.exe'))
             download_file(GITHUB_UPDATER_URL, os.path.join(TEMP_DIR, 'InstallerUpdater.exe'))
-            download_file(GITHUB_VERSION_URL, os.path.join(TEMP_DIR, 'version.txt'))
             shutil.copytree(TEMP_DIR, user_data_dir, dirs_exist_ok=True)
             with open(LOCAL_VERSION_FILE, 'w') as file:
                 file.write(github_version)
