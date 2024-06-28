@@ -84,7 +84,7 @@ def main():
                 file.write(github_version)
             QMessageBox.information(None, 'Update Complete', 'JournalTrade has been updated.')
             subprocess.Popen([MAIN_EXECUTABLE_PATH])
-    else:
+    elif github_version == local_version:
         QMessageBox.information(None, 'Up-to-date', 'JournalTrade is up-to-date.')
 
     sys.exit()
