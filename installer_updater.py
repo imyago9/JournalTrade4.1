@@ -79,12 +79,29 @@ def create_update_script():
                 '''@echo off
 echo Starting update...
 ping 127.0.0.1 -n 5 > nul
+
+echo Copying new files...
 xcopy /s /y "%~dp0new_files\\*" "%~dp0"
-echo Files copied
-rmdir /s /q "%~dp0new_files"
-echo Temporary files removed
+if %errorlevel% neq 0 (
+    echo Error copying files.
+    pause
+    exit /b 1
+)
+
+echo Files copied.
+ping 127.0.0.1 -n 5 > nul
+
+echo Removing temporary files...
+rd /s /q "%~dp0new_files"
+if exist "%~dp0new_files" (
+    echo Failed to remove temporary files.
+    pause
+    exit /b 1
+)
+
+echo Temporary files removed.
 start "" "%~dp0JournalTrade.exe"
-echo Application started
+echo Application started.
 exit
 ''')
 
