@@ -9,12 +9,32 @@ from functions import update_with_new_data
 from ManageDataWidget import ManageDataWidget
 from ApexDataWidget import ApexDataWidget
 from functions import use_data_path
+import requests
+
+GITHUB_REPO_URL = 'https://raw.githubusercontent.com/imyago9/JournalTrade4.1/master/version.txt'
+
+def get_github_version(url):
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.text.strip()
+    except requests.RequestException as e:
+        print(f"Error fetching version from GitHub: {e}")
+        return None
+
+def get_local_version(file_path):
+    try:
+        with open(file_path, 'r') as file:
+            return file.read().strip()
+    except FileNotFoundError:
+        return None
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.check_for_updates()
         self.check_data()
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setWindowTitle("JournalTrade")
@@ -92,6 +112,14 @@ class MainWindow(QMainWindow):
                 border: 2px solid black;
             }
         """)
+
+    def check_for_updates(self):
+        github_version = get_github_version(GITHUB_REPO_URL)
+        local_version = get_local_version(os.path.join(os.getenv('LOCALAPPDATA'), 'JournalTrade', 'version.txt'))
+
+        if github_version and local_version and github_version != local_version:
+            QMessageBox.information(self, 'Update Available', 'A new version of JournalTrade is available. Please '
+                                                              'close the application and run InstallerUpdater.exe.')
 
     def check_data(self):
         if not os.path.exists(use_data_path):
