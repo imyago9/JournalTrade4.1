@@ -13,6 +13,7 @@ user_data_dir = os.path.join(os.getenv('LOCALAPPDATA'), 'Y', 'JournalTrade')
 LOCAL_VERSION_FILE = os.path.join(user_data_dir, 'version.txt')
 MAIN_EXECUTABLE_PATH = os.path.join(user_data_dir, 'JournalTrade.exe')
 UPDATER_PATH = os.path.join(user_data_dir, 'InstallerUpdater.exe')
+TEMP_DIR = os.path.join(user_data_dir, 'new_files')
 
 
 def get_github_version(url):
@@ -48,6 +49,8 @@ def download_and_extract_dist(zip_url, extract_to, subfolder):
         os.remove(zip_path)
 
         extracted_path = os.path.join(extract_to, 'JournalTrade4.1-master', subfolder)
+        merge_directories(extracted_path, extract_to)
+        shutil.rmtree(extracted_path)
         if not os.path.exists(extracted_path):
             raise FileNotFoundError(f"The expected subfolder {extracted_path} was not found in the extracted contents.")
 
@@ -76,29 +79,13 @@ def create_update_script():
         with open(update_script_path, 'w') as file:
             file.write(
                 '''@echo off
-    echo Starting update...
-    ping 127.0.0.1 -n 5 > nul
-    
-    :: Create a temporary batch script to perform the update
-    set tempfile=%temp%\temp_update.bat
-    echo @echo off > %tempfile%
-    echo ping 127.0.0.1 -n 5 > nul >> %tempfile%
-    echo :loop >> %tempfile%
-    echo tasklist /FI "IMAGENAME eq installer_updater.exe" 2>NUL | find /I /N "installer_updater.exe">NUL >> %tempfile%
-    echo if "%errorlevel%"=="0" ping 127.0.0.1 -n 1 >nul & goto loop >> %tempfile%
-    echo xcopy /s /y "%~dp0JournalTrade4.1-master\\dist\\*" "%~dp0" >> %tempfile%
-    echo if errorlevel 1 echo Error copying files. && pause && exit /b 1 >> %tempfile%
-    echo rd /s /q "%~dp0JournalTrade4.1-master" >> %tempfile%
-    echo if exist "%~dp0JournalTrade4.1-master" echo Failed to remove temporary files. && pause && exit /b 1 >> %tempfile%
-    echo start "" "%~dp0JournalTrade.exe" >> %tempfile%
-    echo exit >> %tempfile%
-    
-    :: Start the temporary batch script in a new command window
-    start "" cmd.exe /c %tempfile%
-    
-    :: Exit the updater script
-    exit
-    ''')
+echo Starting update...
+ping 127.0.0.1 -n 5 > nul
+xcopy /s /y "%~dp0new_files\\*" "%~dp0"
+rmdir /s /q "%~dp0new_files"
+start "" "%~dp0JournalTrade.exe"
+exit
+''')
 
 def main():
     app = QApplication(sys.argv)
@@ -113,7 +100,7 @@ def main():
         if reply == QMessageBox.Yes:
             if not os.path.exists(user_data_dir):
                 os.makedirs(user_data_dir)
-            download_and_extract_dist(GITHUB_DIST_ZIP_URL, user_data_dir, 'dist')
+            download_and_extract_dist(GITHUB_DIST_ZIP_URL, TEMP_DIR, 'dist')
             with open(LOCAL_VERSION_FILE, 'w') as file:
                 file.write(github_version)
             subprocess.Popen([os.path.join(user_data_dir, 'update.bat')])
@@ -121,7 +108,7 @@ def main():
     elif github_version != local_version:
         reply = QMessageBox.question(None, 'Update JournalTrade', 'An update is available. Do you want to update JournalTrade?', QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
         if reply == QMessageBox.Yes:
-            download_and_extract_dist(GITHUB_DIST_ZIP_URL, user_data_dir, 'dist')
+            download_and_extract_dist(GITHUB_DIST_ZIP_URL, TEMP_DIR, 'dist')
             with open(LOCAL_VERSION_FILE, 'w') as file:
                 file.write(github_version)
                 create_update_script()
