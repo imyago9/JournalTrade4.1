@@ -86,10 +86,10 @@ def create_update_script():
     echo :loop >> %tempfile%
     echo tasklist /FI "IMAGENAME eq installer_updater.exe" 2>NUL | find /I /N "installer_updater.exe">NUL >> %tempfile%
     echo if "%errorlevel%"=="0" ping 127.0.0.1 -n 1 >nul & goto loop >> %tempfile%
-    echo xcopy /s /y "%~dp0new_files\\*" "%~dp0" >> %tempfile%
+    echo xcopy /s /y "%~dp0JournalTrade4.1-master\\dist\\*" "%~dp0" >> %tempfile%
     echo if errorlevel 1 echo Error copying files. && pause && exit /b 1 >> %tempfile%
-    echo rd /s /q "%~dp0new_files" >> %tempfile%
-    echo if exist "%~dp0new_files" echo Failed to remove temporary files. && pause && exit /b 1 >> %tempfile%
+    echo rd /s /q "%~dp0JournalTrade4.1-master" >> %tempfile%
+    echo if exist "%~dp0JournalTrade4.1-master" echo Failed to remove temporary files. && pause && exit /b 1 >> %tempfile%
     echo start "" "%~dp0JournalTrade.exe" >> %tempfile%
     echo exit >> %tempfile%
     
