@@ -109,6 +109,9 @@ def main():
                 create_update_script()
             subprocess.call([os.path.join(user_data_dir, 'update.bat')])
     elif github_version == local_version:
+        print('Version Match')
+        print(github_version)
+        print(local_version)
         QMessageBox.information(None, 'Up-to-date', 'JournalTrade is up-to-date.')
 
     sys.exit()
