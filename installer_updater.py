@@ -78,8 +78,21 @@ def create_update_script():
                 '''@echo off
 echo Starting update...
 ping 127.0.0.1 -n 5 > nul
-start "" "%~dp0JournalTrade.exe"
-echo Application started
+
+:: Create a temporary batch script to perform the update
+set tempfile=%temp%\temp_update.bat
+echo @echo off > %tempfile%
+echo ping 127.0.0.1 -n 5 > nul >> %tempfile%
+echo xcopy /s /y "%~dp0new_files\\*" "%~dp0" >> %tempfile%
+echo rd /s /q "%~dp0new_files" >> %tempfile%
+echo start "" "%~dp0JournalTrade.exe" >> %tempfile%
+echo exit >> %tempfile%
+
+:: Call the temporary batch script
+start "" /wait %tempfile%
+
+:: Clean up the temporary batch script
+del %tempfile%
 exit
 ''')
 
