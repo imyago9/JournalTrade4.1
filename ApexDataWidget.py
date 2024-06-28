@@ -100,7 +100,7 @@ class ApexDataWidget(QDialog):
         self.data_management_frame_layout_horizontal.addWidget(self.account_settings_button)
 
     def setupTopFrameTitle(self):
-        self.top_frame_title = QLabel("Apex Account(s) Data")
+        self.top_frame_title = QLabel("Apex Analtsccount(s) Data")
         font = QtGui.QFont()
         font.setPointSize(14)
         font.setBold(True)
