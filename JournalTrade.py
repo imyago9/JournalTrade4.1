@@ -1,7 +1,8 @@
 import requests
 import os
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QMessageBox, QApplication
 import MainWindow
+import sys
 import shutil
 
 # URLs
@@ -49,4 +50,5 @@ def check_for_updates():
 
 
 if __name__ == "__main__":
+    app = QApplication(sys.argv)
     check_for_updates()
