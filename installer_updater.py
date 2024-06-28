@@ -15,19 +15,6 @@ MAIN_EXECUTABLE_PATH = os.path.join(user_data_dir, 'JournalTrade.exe')
 UPDATER_PATH = os.path.join(user_data_dir, 'InstallerUpdater.exe')
 TEMP_DIR = os.path.join(user_data_dir, 'new_files')
 
-def create_update_script():
-    update_script_path = os.path.join(user_data_dir, 'update.bat')
-    if not os.path.exists(update_script_path):
-        with open(update_script_path, 'w') as file:
-            file.write(
-                '''@echo off
-echo Starting update...
-ping 127.0.0.1 -n 5 > nul
-xcopy /s /y "%~dp0new_files\\*" "%~dp0"
-rmdir /s /q "%~dp0new_files"
-start "" "%~dp0JournalTrade.exe"
-exit
-''')
 
 def get_github_version(url):
     try:
@@ -45,7 +32,7 @@ def get_local_version(file_path):
     except FileNotFoundError:
         return None
 
-def download_and_extract_dist(zip_url, extract_to):
+def download_and_extract_dist(zip_url, extract_to, subfolder):
     try:
         if not os.path.exists(extract_to):
             os.makedirs(extract_to)
@@ -61,9 +48,12 @@ def download_and_extract_dist(zip_url, extract_to):
             zip_ref.extractall(extract_to)
         os.remove(zip_path)
 
-        extracted_path = os.path.join(extract_to, 'JournalTrade4.1-master')
+        extracted_path = os.path.join(extract_to, 'JournalTrade4.1-master', subfolder)
+        if not os.path.exists(extracted_path):
+            raise FileNotFoundError(f"The expected subfolder {extracted_path} was not found in the extracted contents.")
+
         merge_directories(extracted_path, extract_to)
-        shutil.rmtree(extracted_path)
+        shutil.rmtree(os.path.join(extract_to, 'JournalTrade4.1-master'))
     except requests.RequestException as e:
         print(f"Error downloading dist from GitHub: {e}")
 
@@ -81,6 +71,20 @@ def merge_directories(src, dest):
                 os.remove(dest_file)
             shutil.move(src_file, dest_file)
 
+def create_update_script():
+    update_script_path = os.path.join(user_data_dir, 'update.bat')
+    if not os.path.exists(update_script_path):
+        with open(update_script_path, 'w') as file:
+            file.write(
+                '''@echo off
+echo Starting update...
+ping 127.0.0.1 -n 5 > nul
+xcopy /s /y "%~dp0new_files\\*" "%~dp0"
+rmdir /s /q "%~dp0new_files"
+start "" "%~dp0JournalTrade.exe"
+exit
+''')
+
 def main():
     app = QApplication(sys.argv)
 
@@ -94,14 +98,14 @@ def main():
         if reply == QMessageBox.Yes:
             if not os.path.exists(user_data_dir):
                 os.makedirs(user_data_dir)
-            download_and_extract_dist(GITHUB_DIST_ZIP_URL, TEMP_DIR)
+            download_and_extract_dist(GITHUB_DIST_ZIP_URL, TEMP_DIR, 'dist')
             with open(LOCAL_VERSION_FILE, 'w') as file:
                 file.write(github_version)
-            subprocess.call([os.path.join(user_data_dir, 'new_files', 'dist', 'update.bat')])
+            subprocess.call([os.path.join(user_data_dir, 'update.bat')])
     elif github_version != local_version:
         reply = QMessageBox.question(None, 'Update JournalTrade', 'An update is available. Do you want to update JournalTrade?', QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
         if reply == QMessageBox.Yes:
-            download_and_extract_dist(GITHUB_DIST_ZIP_URL, TEMP_DIR)
+            download_and_extract_dist(GITHUB_DIST_ZIP_URL, TEMP_DIR, 'dist')
             with open(LOCAL_VERSION_FILE, 'w') as file:
                 file.write(github_version)
             subprocess.call([os.path.join(user_data_dir, 'update.bat')])

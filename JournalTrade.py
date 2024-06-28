@@ -41,8 +41,9 @@ def check_for_updates():
         QMessageBox.information(None, 'Update Available', 'A new version of JournalTrade is available. Please '
                                                           'close the application and run InstallerUpdater.exe.')
         MainWindow.main()
-    else:
-        print('No updates available, running the application...')
+    elif github_version == local_version:
+        print(f'Version Match! GitHub Version: {github_version}. Local Version: {local_version}')
+        print('Opening Application.')
         MainWindow.main()
 
 
