@@ -45,6 +45,17 @@ def download_file(url, dest_path):
     except requests.RequestException as e:
         print(f"Error downloading file from {url}: {e}")
 
+def download_text_file(url, dest_path):
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        with open(dest_path, 'w') as f:
+            f.write(response.text.strip())
+        print(f"Downloaded {url} to {dest_path}")
+    except requests.RequestException as e:
+        print(f"Error downloading file from {url}: {e}")
+        raise
+
 def update_application():
     # Download the new executable
     download_file(JOURNALTRADE_EXE_URL, NEW_EXE_PATH)
@@ -52,10 +63,9 @@ def update_application():
     if os.path.exists(UPDATER_EXE_PATH):
         os.remove(UPDATER_EXE_PATH)
     download_file(INSTALLER_EXE_URL, UPDATER_EXE_PATH)
-    
-    if os.path.exists(LOCAL_VERSION_PATH):
-        os.remove(LOCAL_VERSION_PATH)
-    download_file(GITHUB_VERSION_URL, LOCAL_VERSION_PATH)
+
+    # Download and update the local version file
+    download_text_file(GITHUB_VERSION_URL, LOCAL_VERSION_PATH)
 
     # Run the updater executable and exit the current application
     subprocess.Popen([UPDATER_EXE_PATH])
