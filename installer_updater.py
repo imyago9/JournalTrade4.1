@@ -100,6 +100,7 @@ exit
 def main():
     app = QApplication(sys.argv)
 
+    create_update_script()
 
     github_version = get_github_version(GITHUB_REPO_URL)
     local_version = get_local_version(LOCAL_VERSION_FILE)
@@ -112,7 +113,6 @@ def main():
             download_and_extract_dist(GITHUB_DIST_ZIP_URL, user_data_dir, 'dist')
             with open(LOCAL_VERSION_FILE, 'w') as file:
                 file.write(github_version)
-            create_update_script()
             subprocess.Popen([os.path.join(user_data_dir, 'update.bat')])
             sys.exit(0)
     elif github_version != local_version:
@@ -121,7 +121,6 @@ def main():
             download_and_extract_dist(GITHUB_DIST_ZIP_URL, user_data_dir, 'dist')
             with open(LOCAL_VERSION_FILE, 'w') as file:
                 file.write(github_version)
-                create_update_script()
             subprocess.Popen([os.path.join(user_data_dir, 'update.bat')])
             sys.exit(0)
     elif github_version == local_version:
