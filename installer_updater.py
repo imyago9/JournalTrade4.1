@@ -81,7 +81,7 @@ def main():
             download_and_extract_dist(GITHUB_DIST_ZIP_URL, TEMP_DIR)
             with open(LOCAL_VERSION_FILE, 'w') as file:
                 file.write(github_version)
-            subprocess.call([os.path.join(user_data_dir, 'update.bat')])
+            subprocess.call([os.path.join(user_data_dir, 'new_files', 'dist', 'update.bat')])
     elif github_version != local_version:
         reply = QMessageBox.question(None, 'Update JournalTrade', 'An update is available. Do you want to update JournalTrade?', QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
         if reply == QMessageBox.Yes:
