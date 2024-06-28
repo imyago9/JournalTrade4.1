@@ -84,7 +84,9 @@ set tempfile=%temp%\temp_update.bat
 echo @echo off > %tempfile%
 echo ping 127.0.0.1 -n 5 > nul >> %tempfile%
 echo xcopy /s /y "%~dp0new_files\\*" "%~dp0" >> %tempfile%
+echo if errorlevel 1 echo Error copying files. && pause && exit /b 1 >> %tempfile%
 echo rd /s /q "%~dp0new_files" >> %tempfile%
+echo if exist "%~dp0new_files" echo Failed to remove temporary files. && pause && exit /b 1 >> %tempfile%
 echo start "" "%~dp0JournalTrade.exe" >> %tempfile%
 echo exit >> %tempfile%
 
