@@ -7,8 +7,9 @@ import subprocess
 from PyQt5.QtWidgets import QApplication, QMessageBox
 
 # URLs
-GITHUB_REPO_URL = 'https://raw.githubusercontent.com/imyago9/JournalTrade4.1/master/version.txt'
-GITHUB_DIST_ZIP_URL = 'https://github.com/imyago9/JournalTrade4.1/archive/refs/heads/master.zip'
+GITHUB_VERSION_URL = 'https://raw.githubusercontent.com/imyago9/JournalTrade4.1/master/version.txt'
+GITHUB_EXE_URL = 'https://raw.githubusercontent.com/imyago9/JournalTrade4.1/master/JournalTrade.exe'
+GITHUB_UPDATER_URL = 'https://raw.githubusercontent.com/imyago9/JournalTrade4.1/master/InstallerUpdater.exe'
 user_data_dir = os.path.join(os.getenv('LOCALAPPDATA'), 'Y', 'JournalTrade')
 LOCAL_VERSION_FILE = os.path.join(user_data_dir, 'version.txt')
 MAIN_EXECUTABLE_PATH = os.path.join(user_data_dir, 'JournalTrade.exe')
@@ -32,46 +33,16 @@ def get_local_version(file_path):
     except FileNotFoundError:
         return None
 
-def download_and_extract_dist(zip_url, extract_to, subfolder):
+def download_file(url, save_path):
     try:
-        if not os.path.exists(extract_to):
-            os.makedirs(extract_to)
-
-        response = requests.get(zip_url, stream=True)
+        response = requests.get(url, stream=True)
         response.raise_for_status()
-        zip_path = os.path.join(extract_to, 'dist.zip')
-        with open(zip_path, 'wb') as file:
+        with open(save_path, 'wb') as file:
             for chunk in response.iter_content(chunk_size=128):
                 file.write(chunk)
-
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall(extract_to)
-        os.remove(zip_path)
-
-        extracted_path = os.path.join(extract_to, 'JournalTrade4.1-master', subfolder)
-        merge_directories(extracted_path, extract_to)
-        shutil.rmtree(extracted_path)
-        if not os.path.exists(extracted_path):
-            raise FileNotFoundError(f"The expected subfolder {extracted_path} was not found in the extracted contents.")
-
-        merge_directories(extracted_path, extract_to)
-        shutil.rmtree(os.path.join(extract_to, 'JournalTrade4.1-master'))
     except requests.RequestException as e:
-        print(f"Error downloading dist from GitHub: {e}")
+        print(f"Error downloading file from GitHub: {e}")
 
-def merge_directories(src, dest):
-    for root, dirs, files in os.walk(src):
-        relative_path = os.path.relpath(root, src)
-        dest_path = os.path.join(dest, relative_path)
-        if not os.path.exists(dest_path):
-            os.makedirs(dest_path)
-        for file in files:
-            src_file = os.path.join(root, file)
-            dest_file = os.path.join(dest_path, file)
-            if os.path.exists(dest_file):
-                os.chmod(dest_file, 0o777)
-                os.remove(dest_file)
-            shutil.move(src_file, dest_file)
 
 def create_update_script():
     update_script_path = os.path.join(user_data_dir, 'update.bat')
@@ -92,7 +63,7 @@ def main():
 
     create_update_script()
 
-    github_version = get_github_version(GITHUB_REPO_URL)
+    github_version = get_github_version(GITHUB_VERSION_URL)
     local_version = get_local_version(LOCAL_VERSION_FILE)
 
     if not os.path.exists(user_data_dir) or local_version is None:
@@ -100,7 +71,12 @@ def main():
         if reply == QMessageBox.Yes:
             if not os.path.exists(user_data_dir):
                 os.makedirs(user_data_dir)
-            download_and_extract_dist(GITHUB_DIST_ZIP_URL, TEMP_DIR, 'dist')
+            if not os.path.exists(TEMP_DIR):
+                os.makedirs(TEMP_DIR)
+            download_file(GITHUB_EXE_URL, os.path.join(TEMP_DIR, 'JournalTrade.exe'))
+            download_file(GITHUB_UPDATER_URL, os.path.join(TEMP_DIR, 'InstallerUpdater.exe'))
+            download_file(GITHUB_VERSION_URL, os.path.join(TEMP_DIR, 'version.txt'))
+            shutil.copytree(TEMP_DIR, user_data_dir, dirs_exist_ok=True)
             with open(LOCAL_VERSION_FILE, 'w') as file:
                 file.write(github_version)
             subprocess.Popen([os.path.join(user_data_dir, 'update.bat')])
@@ -108,10 +84,14 @@ def main():
     elif github_version != local_version:
         reply = QMessageBox.question(None, 'Update JournalTrade', 'An update is available. Do you want to update JournalTrade?', QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
         if reply == QMessageBox.Yes:
-            download_and_extract_dist(GITHUB_DIST_ZIP_URL, TEMP_DIR, 'dist')
+            if not os.path.exists(TEMP_DIR):
+                os.makedirs(TEMP_DIR)
+            download_file(GITHUB_EXE_URL, os.path.join(TEMP_DIR, 'JournalTrade.exe'))
+            download_file(GITHUB_UPDATER_URL, os.path.join(TEMP_DIR, 'InstallerUpdater.exe'))
+            download_file(GITHUB_VERSION_URL, os.path.join(TEMP_DIR, 'version.txt'))
+            shutil.copytree(TEMP_DIR, user_data_dir, dirs_exist_ok=True)
             with open(LOCAL_VERSION_FILE, 'w') as file:
                 file.write(github_version)
-                create_update_script()
             subprocess.Popen([os.path.join(user_data_dir, 'update.bat')])
             sys.exit(0)
     elif github_version == local_version:
