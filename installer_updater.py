@@ -78,7 +78,6 @@ def create_update_script():
                 '''@echo off
 echo Starting update...
 ping 127.0.0.1 -n 5 > nul
-xcopy /s /y "%~dp0new_files\\*" "%~dp0"
 start "" "%~dp0JournalTrade.exe"
 echo Application started
 exit
