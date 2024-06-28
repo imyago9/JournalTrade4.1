@@ -80,8 +80,11 @@ def create_update_script():
 echo Starting update...
 ping 127.0.0.1 -n 5 > nul
 xcopy /s /y "%~dp0new_files\\*" "%~dp0"
+echo Files copied
 rmdir /s /q "%~dp0new_files"
+echo Temporary files removed
 start "" "%~dp0JournalTrade.exe"
+echo Application started
 exit
 ''')
 
