@@ -1,15 +1,15 @@
-import sys
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout,
-                             QLabel, QGridLayout, QHBoxLayout, QPushButton, QSizePolicy)
+                              QLabel, QGridLayout, QHBoxLayout, QPushButton, QSizePolicy)
 from PyQt5.QtCore import QDate, Qt
 from PyQt5.QtGui import QFont
 import pandas as pd
 
 class CustomCalendar(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, account_type='NinjaTrader', parent=None):
         super(CustomCalendar, self).__init__(parent)
         self.layout = QVBoxLayout(self)
         self.navigation_layout = QHBoxLayout()
+        self.account_type = account_type
 
         self.prev_button = QPushButton("<", self)
         self.prev_button.clicked.connect(self.prevMonth)
@@ -87,23 +87,30 @@ class CustomCalendar(QWidget):
                 break
 
     def update_calendar(self):
-        data = self.account_data
-        data = data.groupby('EntryT').agg({'Profit': 'sum', 'LorS': 'first'}).reset_index()
+        try:
+            if self.account_type == 'NinjaTrader':
+                time_column_name = 'EntryT'
+            elif self.account_type == 'TradingView':
+                time_column_name = 'Time'
+            data = self.account_data
+            data = data.groupby(time_column_name).agg({'Profit': 'sum', 'LorS': 'first'}).reset_index()
 
-        data['EntryT'] = pd.to_datetime(data['EntryT'])
-        data['Date'] = data['EntryT'].dt.date
-        grouped_data = data.groupby('Date').agg({
-            'Profit': 'sum',
-            'EntryT': 'count'  # Count the number of trades (using any column, here EntryT)
-        }).rename(columns={'EntryT': 'Trades'}).reset_index()
+            data[time_column_name] = pd.to_datetime(data[time_column_name])
+            data['Date'] = data[time_column_name].dt.date
+            grouped_data = data.groupby('Date').agg({
+                'Profit': 'sum',
+                time_column_name: 'count'  # Count the number of trades (using any column, here EntryT)
+            }).rename(columns={time_column_name: 'Trades'}).reset_index()
 
-        # Add text to the calendar based on the grouped data
-        for index, row in grouped_data.iterrows():
-            date = row['Date']
-            if date.month == self.current_date.month() and date.year == self.current_date.year():
-                day = date.day
-                text = f"Profit: {row['Profit']}\nTrades: {row['Trades']}"
-                self.setText(day, text)
+            # Add text to the calendar based on the grouped data
+            for index, row in grouped_data.iterrows():
+                date = row['Date']
+                if date.month == self.current_date.month() and date.year == self.current_date.year():
+                    day = date.day
+                    text = f"Profit: {row['Profit']}\nTrades: {row['Trades']}"
+                    self.setText(day, text)
+        except Exception as e:
+            print(f'Failed to update calendar: {e}')
 
     def prevMonth(self):
         self.current_date = self.current_date.addMonths(-1)

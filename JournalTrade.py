@@ -5,12 +5,30 @@ import MainWindow
 import sys
 import shutil
 import subprocess
+from appdirs import AppDirs
+
+APP_NAME = 'JournalTrade'
+APP_AUTHOR = 'Y'
+
+dirs = AppDirs(APP_NAME, APP_AUTHOR)
+user_data_dir = dirs.user_data_dir
+
+if not os.path.exists(user_data_dir):
+    os.makedirs(user_data_dir)
+
+data_path = os.path.join(user_data_dir, 'data')
+if not os.path.exists(data_path):
+    os.makedirs(data_path)
+
+screenshots_path = os.path.join(data_path, 'screenshots')
+if not os.path.exists(screenshots_path):
+    os.makedirs(screenshots_path)
+
 
 # URLs
 GITHUB_VERSION_URL = 'https://raw.githubusercontent.com/imyago9/JournalTrade4.1/master/version.txt'
 JOURNALTRADE_EXE_URL = 'https://raw.githubusercontent.com/imyago9/JournalTrade4.1/master/dist/JournalTrade.exe'
 INSTALLER_EXE_URL = 'https://raw.githubusercontent.com/imyago9/JournalTrade4.1/master/dist/Installer.exe'
-user_data_dir = os.path.join(os.getenv('LOCALAPPDATA'), 'Y', 'JournalTrade')
 LOCAL_VERSION_PATH = os.path.join(user_data_dir, 'version.txt')
 LOCAL_EXE_PATH = os.path.join(user_data_dir, 'JournalTrade.exe')
 NEW_EXE_PATH = os.path.join(user_data_dir, 'JournalTrade_new.exe')

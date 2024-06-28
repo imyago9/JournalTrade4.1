@@ -11,10 +11,12 @@ def sanitize_filename(filename):
     return re.sub(r'[<>:"/\\|?*]', '_', filename)
 
 class ScreenshotPrompt(QDialog):
-    def __init__(self, trade_info, parent=None):
+    def __init__(self, trade_info, parent=None, selected_account={}, account_type='NinjaTrader'):
         super(ScreenshotPrompt, self).__init__(parent)
         self.trade_info = trade_info
         self.drag_pos = QPoint()
+        self.selected_account = selected_account
+        self.account_type = account_type
         self.init_ui()
 
     def init_ui(self):
@@ -27,11 +29,15 @@ class ScreenshotPrompt(QDialog):
         self.center()
 
         layout = QVBoxLayout()
+        if self.account_type == 'NinjaTrader':
+            time_column_name = 'EntryT'
+        elif self.account_type == 'TradingView':
+            time_column_name = 'Time'
 
         trade_info = self.trade_info
         info = (
-            f"Account: {trade_info['Account']}\n"
-            f"Date: {pd.to_datetime(trade_info['EntryT']).strftime('%Y-%m-%d %H:%M')}\n"
+            f"Account: {self.selected_account}\n"
+            f"Date: {pd.to_datetime(trade_info[time_column_name]).strftime('%Y-%m-%d %H:%M')}\n"
             f"P&L: {trade_info['Profit']}\n"
             f"# Contracts: {trade_info['Qty']}\n"
             f"Long or Short: {trade_info['LorS']}"
@@ -70,7 +76,7 @@ class ScreenshotPrompt(QDialog):
 
 
 class ScreenshotUpload(QDialog):
-    def __init__(self, trade_info, trade_id, screenshots_dir='resources/screenshots', parent=None):
+    def __init__(self, trade_info, trade_id, screenshots_dir, parent=None, account_type='NinjaTrader', selected_account={}):
         super(ScreenshotUpload, self).__init__(parent)
         self.trade_info = trade_info
         self.trade_id = trade_id
@@ -78,6 +84,9 @@ class ScreenshotUpload(QDialog):
         self.mapping_file = os.path.join(screenshots_dir, 'screenshot_mapping.json')
         self.screenshot_path = None
         self.drag_pos = QPoint()
+        self.account_type = account_type
+        self.selected_account = selected_account
+        self.account_type = account_type
         self.init_ui()
 
     def init_ui(self):
@@ -90,11 +99,15 @@ class ScreenshotUpload(QDialog):
         self.center()
 
         layout = QVBoxLayout()
+        if self.account_type == 'NinjaTrader':
+            time_column_name = 'EntryT'
+        elif self.account_type == 'TradingView':
+            time_column_name = 'Time'
 
         trade_info = self.trade_info
         info = (
-            f"Account: {trade_info['Account']}\n"
-            f"Date: {pd.to_datetime(trade_info['EntryT']).strftime('%Y-%m-%d %H:%M')}\n"
+            f"Account: {self.selected_account}\n"
+            f"Date: {pd.to_datetime(trade_info[time_column_name]).strftime('%Y-%m-%d %H:%M')}\n"
             f"P&L: {trade_info['Profit']}\n"
             f"# Contracts: {trade_info['Qty']}\n"
             f"Long or Short: {trade_info['LorS']}"

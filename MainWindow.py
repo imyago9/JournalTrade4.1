@@ -1,41 +1,66 @@
 import sys
-import pandas as pd
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTreeView, QAbstractItemView, QFileDialog, QMessageBox, QDesktopWidget
+from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt, QPoint
-from PyQt5 import QtGui
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5 import QtGui, QtCore
 import os
-from functions import update_with_new_data
 from ManageDataWidget import ManageDataWidget
-from ApexDataWidget import ApexDataWidget
-from functions import use_data_path
-import requests
+from NinjaTraderDataWidget import NinjaTraderDataWidget
+from TradingViewDataWidget import TradingViewDataWidget
 
-GITHUB_REPO_URL = 'https://raw.githubusercontent.com/imyago9/JournalTrade4.1/master/version.txt'
+data_path = os.path.join(os.getenv('LOCALAPPDATA'), 'Y', 'JournalTrade', 'data')
 
-def get_github_version(url):
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        return response.text.strip()
-    except requests.RequestException as e:
-        print(f"Error fetching version from GitHub: {e}")
-        return None
+class SelectAccountBox(QDialog):
+    def __init__(self, message, folders=None, parent=None):
+        super().__init__(parent)
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
 
-def get_local_version(file_path):
-    try:
-        with open(file_path, 'r') as file:
-            return file.read().strip()
-    except FileNotFoundError:
-        return None
+        self.initUI(message, folders)
+        self.oldPos = None
 
+    def initUI(self, message, folders):
+        layout = QVBoxLayout()
+
+        self.label = QLabel(message)
+        layout.addWidget(self.label)
+
+        self.folder_buttons = []
+        if folders:
+            for folder in folders:
+                button = QPushButton(folder, self)
+                button.clicked.connect(lambda _, f=folder: self.folder_selected(f))
+                layout.addWidget(button)
+                self.folder_buttons.append(button)
+            close_button = QPushButton('Close', clicked=self.close)
+            layout.addWidget(close_button)
+
+        self.setLayout(layout)
+
+    def folder_selected(self, folder):
+        self.selected_folder = folder
+        self.accept()
+
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            self.oldPos = event.globalPos()
+
+    def mouseMoveEvent(self, event):
+        if not self.oldPos:
+            return
+        if event.buttons() == QtCore.Qt.LeftButton:
+            delta = event.globalPos() - self.oldPos
+            self.move(self.pos() + delta)
+            self.oldPos = event.globalPos()
+
+    @staticmethod
+    def show_message(message, folders=None, parent=None):
+        dialog = SelectAccountBox(message, folders, parent)
+        result = dialog.exec_()
+        return result == QDialog.Accepted, getattr(dialog, 'selected_folder', None)
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.check_for_updates()
-        self.check_data()
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setWindowTitle("JournalTrade")
 
@@ -43,7 +68,7 @@ class MainWindow(QMainWindow):
         screen_width = screen.width()
         screen_height = screen.height()
 
-        self.setGeometry(100, 100, int(screen_width * 0.45), int(screen_height * 0.2))
+        self.setGeometry(100, 100, int(screen_width * 0.3), int(screen_height * 0.05))
 
         self._is_dragging = False
         self._drag_start_position = QPoint()
@@ -62,19 +87,13 @@ class MainWindow(QMainWindow):
         manage_data_icon.addPixmap(QtGui.QPixmap(resource_path("resources/managedata.svg")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.manage_data_button.setIcon(manage_data_icon)
 
-        self.view_data_button = QPushButton('View Data')
+        self.view_data_button = QPushButton('View Data', clicked=self.open_view_data_widget)
         view_data_icon = QtGui.QIcon()
         view_data_icon.addPixmap(QtGui.QPixmap(resource_path("resources/viewdata.svg")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.view_data_button.setIcon(view_data_icon)
 
-        self.apex_data_button = QPushButton('Apex Account(s) Data', clicked=self.open_apex_data_widget)
-        apex_data_icon = QtGui.QIcon()
-        apex_data_icon.addPixmap(QtGui.QPixmap(resource_path("resources/apexaccounts.svg")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.apex_data_button.setIcon(apex_data_icon)
-
         self.top_layout.addWidget(self.manage_data_button)
         self.top_layout.addWidget(self.view_data_button)
-        self.top_layout.addWidget(self.apex_data_button)
         self.top_layout.addStretch(1)
 
         self.minimize_button = QPushButton()
@@ -92,17 +111,6 @@ class MainWindow(QMainWindow):
 
         self.layout.addWidget(self.top_frame)
 
-        # Bottom Frame with QTreeView
-        self.bottom_frame = QWidget()
-        self.bottom_layout = QVBoxLayout(self.bottom_frame)
-
-        self.tree_view = QTreeView()
-        self.load_data_into_tree_view()
-
-        self.bottom_layout.addWidget(self.tree_view)
-
-        self.layout.addWidget(self.bottom_frame)
-
         self.close_button.clicked.connect(sys.exit)
         self.minimize_button.clicked.connect(self.showMinimized)
 
@@ -113,53 +121,34 @@ class MainWindow(QMainWindow):
             }
         """)
 
-    def check_for_updates(self):
-        github_version = get_github_version(GITHUB_REPO_URL)
-        local_version = get_local_version(os.path.join(os.getenv('LOCALAPPDATA'), 'JournalTrade', 'version.txt'))
-
-        if github_version and local_version and github_version != local_version:
-            QMessageBox.information(self, 'Update Available', 'A new version of JournalTrade is available. Please '
-                                                              'close the application and run InstallerUpdater.exe.')
-
-    def check_data(self):
-        if not os.path.exists(use_data_path):
-            QMessageBox.warning(self, "File Not Found", "To run the app you need to enter a csv file from "
-                                                        "NinjaTrader. On NinjaTrader, select the following "
-                                                        "columns:\n*Instrument,"
-                                                        "Account,Market pos.,Qty,Entry price,Exit price,Entry time,"
-                                                        "Exit time,Profit,Commission*")
-            file_path, _ = QFileDialog.getOpenFileName(self, "Open CSV", "", "CSV Files (*.csv);;All Files (*)")
-            if not file_path:
-                sys.exit()
-            else:
-                update_with_new_data(file_path)
-
-
-    def load_data_into_tree_view(self):
-        data = pd.read_csv(use_data_path)
-        model = QStandardItemModel()
-        model.setHorizontalHeaderLabels(data.columns.tolist())
-
-        for row in data.itertuples(index=False):
-            items = [QStandardItem(str(field)) for field in row]
-            model.appendRow(items)
-
-        self.tree_view.setModel(model)
-        self.tree_view.setAlternatingRowColors(True)
-        self.tree_view.setEditTriggers(QAbstractItemView.NoEditTriggers)
-
-
-    def update_tree_view(self):
-        self.load_data_into_tree_view()
 
     def open_manage_data_widget(self):
         self.manage_widget = ManageDataWidget(parent=None)
-        self.manage_widget.csv_uploaded.connect(self.update_tree_view)
         self.manage_widget.show()
 
-    def open_apex_data_widget(self):
-        self.apex_widget = ApexDataWidget(parent=None)
-        self.apex_widget.show()
+    def open_view_data_widget(self):
+        folders = self.list_folders_in_directory(data_path)
+
+        if len(folders) == 1:
+            self.check_folder_selected_and_load(folders[0])
+        elif len(folders) > 1:
+            reply, selected_folder = SelectAccountBox.show_message('Select which type of account(s) you wish to see:', folders, self)
+            if reply:
+                self.check_folder_selected_and_load(selected_folder)
+        else:
+            print("No folders found.")
+
+    def list_folders_in_directory(self, directory):
+        return [name for name in os.listdir(directory) if os.path.isdir(os.path.join(directory, name))]
+
+    def check_folder_selected_and_load(self, selected_folder):
+        if selected_folder == 'NinjaTrader':
+            self.ninjatrader_data_widget = NinjaTraderDataWidget(parent=None)
+            self.ninjatrader_data_widget.show()
+        elif selected_folder == 'TradingView':
+            self.tradingview_widget = TradingViewDataWidget(parent=None)
+            self.tradingview_widget.show()
+
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
