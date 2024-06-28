@@ -35,7 +35,7 @@ def is_dir_empty(directory):
 
 def check_for_updates():
     github_version = get_github_version(GITHUB_REPO_URL)
-    local_version = get_local_version(os.path.join(os.getenv('LOCALAPPDATA'), 'JournalTrade', 'version.txt'))
+    local_version = get_local_version(os.path.join(os.getenv('LOCALAPPDATA'), 'Y', 'JournalTrade', 'version.txt'))
 
     if github_version and local_version and github_version != local_version:
         QMessageBox.information(None, 'Update Available', 'A new version of JournalTrade is available. Please '
