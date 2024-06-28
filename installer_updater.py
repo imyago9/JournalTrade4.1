@@ -13,7 +13,6 @@ user_data_dir = os.path.join(os.getenv('LOCALAPPDATA'), 'Y', 'JournalTrade')
 LOCAL_VERSION_FILE = os.path.join(user_data_dir, 'version.txt')
 MAIN_EXECUTABLE_PATH = os.path.join(user_data_dir, 'JournalTrade.exe')
 UPDATER_PATH = os.path.join(user_data_dir, 'InstallerUpdater.exe')
-TEMP_DIR = os.path.join(user_data_dir, 'new_files')
 
 
 def get_github_version(url):
@@ -98,14 +97,14 @@ def main():
         if reply == QMessageBox.Yes:
             if not os.path.exists(user_data_dir):
                 os.makedirs(user_data_dir)
-            download_and_extract_dist(GITHUB_DIST_ZIP_URL, TEMP_DIR, 'dist')
+            download_and_extract_dist(GITHUB_DIST_ZIP_URL, user_data_dir, 'dist')
             with open(LOCAL_VERSION_FILE, 'w') as file:
                 file.write(github_version)
             subprocess.call([os.path.join(user_data_dir, 'update.bat')])
     elif github_version != local_version:
         reply = QMessageBox.question(None, 'Update JournalTrade', 'An update is available. Do you want to update JournalTrade?', QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
         if reply == QMessageBox.Yes:
-            download_and_extract_dist(GITHUB_DIST_ZIP_URL, TEMP_DIR, 'dist')
+            download_and_extract_dist(GITHUB_DIST_ZIP_URL, user_data_dir, 'dist')
             with open(LOCAL_VERSION_FILE, 'w') as file:
                 file.write(github_version)
             subprocess.call([os.path.join(user_data_dir, 'update.bat')])
