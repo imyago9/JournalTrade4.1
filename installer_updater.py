@@ -86,7 +86,6 @@ exit
 def main():
     app = QApplication(sys.argv)
 
-    create_update_script()
 
     github_version = get_github_version(GITHUB_REPO_URL)
     local_version = get_local_version(LOCAL_VERSION_FILE)
@@ -99,6 +98,7 @@ def main():
             download_and_extract_dist(GITHUB_DIST_ZIP_URL, user_data_dir, 'dist')
             with open(LOCAL_VERSION_FILE, 'w') as file:
                 file.write(github_version)
+            create_update_script()
             subprocess.call([os.path.join(user_data_dir, 'update.bat')])
     elif github_version != local_version:
         reply = QMessageBox.question(None, 'Update JournalTrade', 'An update is available. Do you want to update JournalTrade?', QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
@@ -106,6 +106,7 @@ def main():
             download_and_extract_dist(GITHUB_DIST_ZIP_URL, user_data_dir, 'dist')
             with open(LOCAL_VERSION_FILE, 'w') as file:
                 file.write(github_version)
+                create_update_script()
             subprocess.call([os.path.join(user_data_dir, 'update.bat')])
     elif github_version == local_version:
         QMessageBox.information(None, 'Up-to-date', 'JournalTrade is up-to-date.')
