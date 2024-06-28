@@ -90,11 +90,10 @@ echo if exist "%~dp0new_files" echo Failed to remove temporary files. && pause &
 echo start "" "%~dp0JournalTrade.exe" >> %tempfile%
 echo exit >> %tempfile%
 
-:: Call the temporary batch script
-start "" /wait %tempfile%
+:: Start the temporary batch script in a new window
+start "" %tempfile%
 
-:: Clean up the temporary batch script
-del %tempfile%
+:: Exit the updater script
 exit
 ''')
 
@@ -115,6 +114,7 @@ def main():
                 file.write(github_version)
             create_update_script()
             subprocess.call([os.path.join(user_data_dir, 'update.bat')])
+            sys.exit(0)
     elif github_version != local_version:
         reply = QMessageBox.question(None, 'Update JournalTrade', 'An update is available. Do you want to update JournalTrade?', QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
         if reply == QMessageBox.Yes:
@@ -123,6 +123,7 @@ def main():
                 file.write(github_version)
                 create_update_script()
             subprocess.call([os.path.join(user_data_dir, 'update.bat')])
+            sys.exit(0)
     elif github_version == local_version:
         print('Version Match')
         print(github_version)
