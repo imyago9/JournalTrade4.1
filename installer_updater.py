@@ -15,6 +15,20 @@ MAIN_EXECUTABLE_PATH = os.path.join(user_data_dir, 'JournalTrade.exe')
 UPDATER_PATH = os.path.join(user_data_dir, 'InstallerUpdater.exe')
 TEMP_DIR = os.path.join(user_data_dir, 'new_files')
 
+def create_update_script():
+    update_script_path = os.path.join(user_data_dir, 'update.bat')
+    if not os.path.exists(update_script_path):
+        with open(update_script_path, 'w') as file:
+            file.write(
+                '''@echo off
+echo Starting update...
+ping 127.0.0.1 -n 5 > nul
+xcopy /s /y "%~dp0new_files\\*" "%~dp0"
+rmdir /s /q "%~dp0new_files"
+start "" "%~dp0JournalTrade.exe"
+exit
+''')
+
 def get_github_version(url):
     try:
         response = requests.get(url)
@@ -69,6 +83,8 @@ def merge_directories(src, dest):
 
 def main():
     app = QApplication(sys.argv)
+
+    create_update_script()
 
     github_version = get_github_version(GITHUB_REPO_URL)
     local_version = get_local_version(LOCAL_VERSION_FILE)
