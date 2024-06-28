@@ -4,12 +4,17 @@ from PyQt5.QtWidgets import QMessageBox, QApplication
 import MainWindow
 import sys
 import shutil
+import subprocess
 
 # URLs
 GITHUB_REPO_URL = 'https://raw.githubusercontent.com/imyago9/JournalTrade4.1/master/version.txt'
-GITHUB_DIST_ZIP_URL = 'https://github.com/imyago9/JournalTrade4.1/archive/refs/heads/master.zip'
+JOURNALTRADE_EXE_URL = 'https://raw.githubusercontent.com/imyago9/JournalTrade4.1/master/dist/JournalTrade.exe'
+INSTALLER_EXE_URL = 'https://raw.githubusercontent.com/imyago9/JournalTrade4.1/master/dist/Installer.exe'
 user_data_dir = os.path.join(os.getenv('LOCALAPPDATA'), 'Y', 'JournalTrade')
 LOCAL_VERSION_FILE = os.path.join(user_data_dir, 'version.txt')
+LOCAL_EXE_PATH = os.path.join(user_data_dir, 'JournalTrade.exe')
+NEW_EXE_PATH = os.path.join(user_data_dir, 'JournalTrade_new.exe')
+UPDATER_EXE_PATH = os.path.join(user_data_dir, 'Installer.exe')
 
 
 def get_github_version(url):
@@ -30,21 +35,44 @@ def get_local_version(file_path):
         print(f"Local version file not found at {file_path}")
         return None
 
+def download_file(url, dest_path):
+    try:
+        response = requests.get(url, stream=True)
+        response.raise_for_status()
+        with open(dest_path, 'wb') as f:
+            shutil.copyfileobj(response.raw, f)
+        print(f"Downloaded {url} to {dest_path}")
+    except requests.RequestException as e:
+        print(f"Error downloading file from {url}: {e}")
 
-def is_dir_empty(directory):
-    return not any(os.scandir(directory))
+def update_application():
+    # Download the new executable
+    download_file(JOURNALTRADE_EXE_URL, NEW_EXE_PATH)
 
+    if os.path.exists(UPDATER_EXE_PATH):
+        os.remove(UPDATER_EXE_PATH)
+    download_file(INSTALLER_EXE_URL, UPDATER_EXE_PATH)
+
+    # Run the updater executable and exit the current application
+    subprocess.Popen([UPDATER_EXE_PATH])
+    sys.exit()
 
 def check_for_updates():
     github_version = get_github_version(GITHUB_REPO_URL)
     local_version = get_local_version(os.path.join(os.getenv('LOCALAPPDATA'), 'Y', 'JournalTrade', 'version.txt'))
 
     if github_version and local_version and github_version != local_version:
-        QMessageBox.information(None, 'Update Available', 'A new version of JournalTrade is available. Please '
-                                                          'close the application and run InstallerUpdater.exe.')
-        MainWindow.main()
+        reply = QMessageBox.question(None, 'Update Available',
+                                     'A new version of JournalTrade is available. Do you want to update?',
+                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            update_application()
+        else:
+            sys.exit()
+    elif local_version is None:
+        update_application()
     elif github_version == local_version:
-        print(f'SILLY Version Match THE UPDATE WORKEEDDDD! GitHub Version: {github_version}. Local Version: {local_version}')
+        print(f'Version Match! GitHub Version: {github_version}. Local Version: {local_version}')
         print('Opening Application.')
         MainWindow.main()
 
