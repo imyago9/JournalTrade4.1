@@ -8,8 +8,8 @@ from PyQt5.QtWidgets import QApplication, QMessageBox
 
 # URLs
 GITHUB_VERSION_URL = 'https://raw.githubusercontent.com/imyago9/JournalTrade4.1/master/version.txt'
-GITHUB_EXE_URL = 'https://github.com/imyago9/JournalTrade4.1/blob/master/dist/JournalTrade.exe'
-GITHUB_UPDATER_URL = 'https://github.com/imyago9/JournalTrade4.1/blob/master/dist/installer_updater.exe'
+GITHUB_EXE_URL = 'https://github.com/imyago9/JournalTrade4.1/raw/master/JournalTrade.exe'
+GITHUB_UPDATER_URL = 'https://github.com/imyago9/JournalTrade4.1/raw/master/InstallerUpdater.exe'
 user_data_dir = os.path.join(os.getenv('LOCALAPPDATA'), 'Y', 'JournalTrade')
 LOCAL_VERSION_FILE = os.path.join(user_data_dir, 'version.txt')
 MAIN_EXECUTABLE_PATH = os.path.join(user_data_dir, 'JournalTrade.exe')
