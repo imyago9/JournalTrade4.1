@@ -37,7 +37,7 @@ def check_for_updates():
     github_version = get_github_version(GITHUB_REPO_URL)
     local_version = get_local_version(LOCAL_VERSION_FILE)
 
-    if github_version and local_version and github_version != local_version:
+    if github_version != local_version:
         print('Version Mismatch')
         print(github_version)
         print(local_version)
