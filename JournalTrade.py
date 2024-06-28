@@ -43,7 +43,7 @@ def check_for_updates():
                                                           'close the application and run InstallerUpdater.exe.')
         MainWindow.main()
     elif github_version == local_version:
-        print(f'Version Match! GitHub Version: {github_version}. Local Version: {local_version}')
+        print(f'SILLY Version Match THE UPDATE WORKEEDDDD! GitHub Version: {github_version}. Local Version: {local_version}')
         print('Opening Application.')
         MainWindow.main()
 
