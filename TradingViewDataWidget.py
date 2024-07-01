@@ -117,11 +117,16 @@ class TradingViewDataWidget(QDialog):
         minimize_icon = QtGui.QIcon()
         minimize_icon.addPixmap(QtGui.QPixmap(resource_path("resources/minimize.svg")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.minimize_button.setIcon(minimize_icon)
+        self.maximize_button = QPushButton(self.window_buttons_frame, clicked=self.showMaximized)
+        maximize_icon = QtGui.QIcon()
+        maximize_icon.addPixmap(QtGui.QPixmap(resource_path("resources/minimize.svg")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.maximize_button.setIcon(maximize_icon)
         self.close_button = QPushButton(self.window_buttons_frame, clicked=self.close)
         close_icon = QtGui.QIcon()
         close_icon.addPixmap(QtGui.QPixmap(resource_path("resources/close.svg")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.close_button.setIcon(close_icon)
         self.window_buttons_frame_layout_horizontal.addWidget(self.minimize_button)
+        self.window_buttons_frame_layout_horizontal.addWidget(self.maximize_button)
         self.window_buttons_frame_layout_horizontal.addWidget(self.close_button)
 
     def setupBottomFrame(self):

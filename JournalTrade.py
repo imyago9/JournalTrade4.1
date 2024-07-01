@@ -20,10 +20,6 @@ data_path = os.path.join(user_data_dir, 'data')
 if not os.path.exists(data_path):
     os.makedirs(data_path)
 
-screenshots_path = os.path.join(data_path, 'screenshots')
-if not os.path.exists(screenshots_path):
-    os.makedirs(screenshots_path)
-
 
 # URLs
 GITHUB_VERSION_URL = 'https://raw.githubusercontent.com/imyago9/JournalTrade4.1/master/version.txt'
