@@ -1,5 +1,4 @@
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout,
-                              QLabel, QGridLayout, QHBoxLayout, QPushButton, QSizePolicy)
+from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QDate, Qt
 from PyQt5.QtGui import QFont
 import pandas as pd
@@ -36,9 +35,12 @@ class CustomCalendar(QWidget):
 
     def initUI(self):
         # Create labels for the days of the week
+        screen = QDesktopWidget().screenGeometry()
+        screen_width = screen.width()
+        screen_height = screen.height()
         days_of_week = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", 'Sun']
-        label_width = 70
-        label_height = 50
+        label_width = int(screen_width * 0.035)
+        label_height = int(screen_height * 0.045)
         font_size = 8
 
         font = QFont()
